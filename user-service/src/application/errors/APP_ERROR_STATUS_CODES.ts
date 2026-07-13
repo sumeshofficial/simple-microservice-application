@@ -1,0 +1,11 @@
+export const AppErrorStatusCodes = {
+	UNAUTHORIZED: 'UNAUTHORIZED_ERROR',
+	VALIDATION_ERROR: 'VALIDATION_ERROR',
+	FORBIDDEN: 'FORBIDDEN_ERROR',
+	NOT_FOUND: 'NOT_FOUND_ERROR',
+	CONFLICT: 'CONFLICT_ERROR',
+	INTERNAL_SERVER_ERROR: 'INTERNAL_SERVER_ERROR',
+	BAD_REQUEST: 'BAD_REQUEST_ERROR',
+} as const;
+
+export type AppErrorStatusCodes = (typeof AppErrorStatusCodes)[keyof typeof AppErrorStatusCodes];

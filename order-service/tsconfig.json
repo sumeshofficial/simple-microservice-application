@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "rootDir": "./src",
-    "outDir": "build",
+    "outDir": "./dist",
     "paths": {
       "@domain/*": ["./src/domain/*"],
       "@application/*": ["./src/application/*"],

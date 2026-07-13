@@ -9,17 +9,24 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon --watch src --ext ts,json --exec tsx src/main.ts",
-    "build": "tsc",
+    "build": "tsc && tsc-alias --resolve-full-paths",
     "start": "node dist/main.js"
   },
   "dependencies": {
+    "argon2": "^0.44.0",
+    "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.7.4",
-    "nodemon": "^3.1.14"
+    "ulid": "^3.0.2",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^26.1.1",
+    "nodemon": "^3.1.14",
+    "tsc-alias": "^1.9.0",
     "tsx": "^4.23.0",
     "typescript": "^7.0.2"
   }
