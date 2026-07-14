@@ -3,8 +3,11 @@ import {
   HydratedUserDocument,
   LeanUserDocument,
 } from "@infrastructure/repository/models/user.model";
+import { injectable } from "inversify";
+import { IUserMapper } from "./UserMapper.interface";
 
-export class UserMapper {
+@injectable()
+export class UserMapper implements IUserMapper {
   toDomain(raw: HydratedUserDocument): User {
     return new User(
       raw._id.toString(),
@@ -15,7 +18,7 @@ export class UserMapper {
     );
   }
 
-  toMongoDocument(user: User): LeanUserDocument {
+  toPersistence(user: User): LeanUserDocument {
     return {
       _id: user.id,
       name: user.name,

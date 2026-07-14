@@ -5,12 +5,20 @@ services:
 
     ports:
       - "3001:3001"
+      - "50051:50051"
 
-    env_file: 
-      - ./user-service/.env
+    environment: 
+      - PORT=3001
+      - MONGODB_URL=mongodb://mongodb:27017/user_db
+      - JWT_SECRET=jwt-sceret-key
+      - JWT_EXPIRES_IN=1d
+      - GRPC_PORT=50051
 
     depends_on: 
       - mongodb
+
+    networks:
+      - app-network
 
   mongodb:
     image: mongo
@@ -20,6 +28,13 @@ services:
 
     volumes:
       - mongo-data:/data/db
+
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
 
 volumes:
   mongo-data:

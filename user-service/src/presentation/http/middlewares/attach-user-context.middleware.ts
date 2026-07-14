@@ -1,26 +1,24 @@
 import type { Request, Response, NextFunction } from "express";
+import { injectable } from "inversify";
 
-export const attachUserContext = (
-  req: Request,
-  _res: Response,
-  next: NextFunction
-) => {
-  try {
-    const userId = req.headers["x-jwt-userid"] as string;
-    const name = req.headers["x-jwt-name"] as string;
-    const role = req.headers["x-jwt-role"] as string | undefined;
+@injectable()
+export class AttachUserContextMiddleware {
+  handle = (req: Request, _res: Response, next: NextFunction) => {
+    try {
+      const userId = req.headers["x-jwt-userid"] as string;
+      const role = req.headers["x-jwt-role"] as string | undefined;
 
-    if (!userId) {
-      return next();
+      if (!userId) {
+        return next();
+      }
+
+      req.user = {
+        id: userId,
+        role: role as string,
+      };
+      next();
+    } catch (error) {
+      next();
     }
-
-    req.user = {
-      id: userId,
-      name: name || "",
-      role: role as string,
-    };
-    next();
-  } catch (error) {
-    next();
-  }
-};
+  };
+}

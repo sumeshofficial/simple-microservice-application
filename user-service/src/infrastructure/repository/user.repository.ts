@@ -1,13 +1,16 @@
 import { User } from "@domain/entities/user.entity";
 import { IUserRepository } from "@domain/repositories/user.repository";
-import { UserMapper } from "./mapper/User.mapper";
 import { userModel } from "./models/user.model";
+import { inject, injectable } from "inversify";
+import { TYPES } from "@config/di/types";
+import type { IUserMapper } from "./mapper/UserMapper.interface";
 
+@injectable()
 export class UserRepository implements IUserRepository {
-  constructor(private mapper: UserMapper) {}
+  constructor(@inject(TYPES.UserMapper) private mapper: IUserMapper) {}
 
   async save(user: User): Promise<void> {
-    const doc = this.mapper.toMongoDocument(user);
+    const doc = this.mapper.toPersistence(user);
     await userModel.create(doc);
   }
 

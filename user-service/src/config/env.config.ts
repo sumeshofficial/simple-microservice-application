@@ -6,12 +6,13 @@ const envSchema = z.object({
   MONGODB_URL: z.string().min(1, "MONGODB_URL is required"),
   JWT_SECRET: z.string().min(1, "JWT_SECRET is required"),
   JWT_EXPIRES_IN: z.string().default("1d"),
+  GRPC_PORT: z.string(),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);
 
 if (!parsedEnv.success) {
-  const formattedErrors = parsedEnv.error.issues.map((issue) => { 
+  const formattedErrors = parsedEnv.error.issues.map((issue) => {
     const path = issue.path.join(".");
     return `- ${path}: ${issue.message}`;
   });

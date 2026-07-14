@@ -1,64 +1,45 @@
-import { GetUserUseCase } from "@application/use-cases/get-user.use-case";
-import { LoginUserUseCase } from "@application/use-cases/login-user.use-case";
-import { RegisterUserUseCase } from "@application/use-cases/register-user.use-case";
 import { env } from "@config/env.config";
 import { MongoDatabase } from "@infrastructure/repository/DatabaseInstance";
-import { UserMapper } from "@infrastructure/repository/mapper/User.mapper";
-import { UserRepository } from "@infrastructure/repository/user.repository";
-import { Argon2PassworHasher } from "@infrastructure/services/argon2-password-hasher.service";
-import { TokenGenerator } from "@infrastructure/services/token-generator.service";
-import { AuthController } from "@presentation/http/controllers/auth-controller";
-import { UserController } from "@presentation/http/controllers/user-controller";
 import { ErrorHandlerMiddleware } from "@presentation/http/middlewares/error-handler.middleware";
 import { AuthRouter } from "@presentation/http/router/auth.router";
 import { UserRouter } from "@presentation/http/router/user.router";
+import "reflect-metadata";
 import express from "express";
+import { container } from "@config/di/container";
+import { TYPES } from "@config/di/types";
+import { ROUTES } from "@presentation/http/constants/routes";
+import {
+  server as grpcServer,
+  startGrpcServer,
+} from "@presentation/grpc/user.grpc.server";
 
 const app = express();
 
 app.use(express.json());
 
-const argon2PasswordHasher = new Argon2PassworHasher();
-const tokenGenerator = new TokenGenerator();
+const authRoutes = container.get<AuthRouter>(TYPES.AuthRoutes);
+const userRoutes = container.get<UserRouter>(TYPES.UserRoutes);
 
-const mapper = new UserMapper();
-const userRepository = new UserRepository(mapper);
-
-const registerUserUseCase = new RegisterUserUseCase(
-  userRepository,
-  argon2PasswordHasher,
-  tokenGenerator
-);
-const loginUserUseCase = new LoginUserUseCase(
-  userRepository,
-  tokenGenerator,
-  argon2PasswordHasher
-);
-const getMeUseCase = new GetUserUseCase(userRepository);
-
-const authController = new AuthController(
-  registerUserUseCase,
-  loginUserUseCase
-);
-
-const userController = new UserController(getMeUseCase);
-
-app.use("/api/auth", AuthRouter.create(authController));
-app.use("/api/users", UserRouter.create(userController));
+app.use(ROUTES.AUTH, authRoutes.router);
+app.use(ROUTES.USERS, userRoutes.router);
 
 app.use(ErrorHandlerMiddleware.handle);
 
-const PORT = env.PORT || 3001;
+const PORT = env.PORT;
 
 const bootstrap = async () => {
   const mongo = MongoDatabase.getInstance();
   await mongo.connect();
+  await startGrpcServer();
 
   const server = app.listen(PORT, () => {
     console.log(`Server listening on port ${env.PORT}`);
   });
 
   const shutdown = async () => {
+    grpcServer.tryShutdown((err) => {
+      console.log(err);
+    });
     server.close(async () => {
       await mongo.disconnect();
       process.exit(0);

@@ -1,12 +1,15 @@
 import { Request, Response } from "express";
-import { IGetUserUseCase } from "@application/ports/use-cases/get-user.use-case.interface";
+import type { IGetUserUseCase } from "@application/ports/use-cases/get-user.use-case.interface";
 import { IUserController } from "../interfaces/user-controller.interface";
 import { ResponseMessages } from "../constants/response-messages";
 import { HttpStatus } from "../constants/http-status";
 import { UnauthorizedError } from "@application/errors/UnauthorizedError";
+import { inject, injectable } from "inversify";
+import { TYPES } from "@config/di/types";
 
+@injectable()
 export class UserController implements IUserController {
-  constructor(private getUserUseCase: IGetUserUseCase) {}
+  constructor(@inject(TYPES.GetUser) private getUserUseCase: IGetUserUseCase) {}
 
   getMe = async (req: Request, res: Response): Promise<void> => {
     const user = req.user;
