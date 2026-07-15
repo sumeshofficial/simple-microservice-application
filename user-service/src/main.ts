@@ -12,6 +12,7 @@ import {
   server as grpcServer,
   startGrpcServer,
 } from "@presentation/grpc/user.grpc.server";
+import { seedAdmin } from "@infrastructure/repository/seed";
 
 const app = express();
 
@@ -30,6 +31,7 @@ const PORT = env.PORT;
 const bootstrap = async () => {
   const mongo = MongoDatabase.getInstance();
   await mongo.connect();
+  await seedAdmin(container);
   await startGrpcServer();
 
   const server = app.listen(PORT, () => {

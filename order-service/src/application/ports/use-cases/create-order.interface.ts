@@ -1,8 +1,17 @@
-import { CreateOrderDto } from "@application/dtos/create-order.dto";
+import {
+  OrderResponseDTO,
+} from "@application/dtos/order.dto";
 import { IUseCase } from "./use-case.interface";
-import { OrderDTO } from "@domain/entities/order.entity";
+
+export type OrderCreateRequestDTO = {
+  userId: string;
+  item: string;
+  quantity: number;
+  price: number;
+};
+
 
 export interface ICreateOrderUseCase extends IUseCase<
-  CreateOrderDto,
-  OrderDTO
+  OrderCreateRequestDTO,
+  OrderResponseDTO
 > {}

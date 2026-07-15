@@ -1,26 +1,32 @@
-import { CreateOrderDto } from "@application/dtos/create-order.dto";
-import { IIdGenerator } from "@application/ports/services/id-generator.service";
-import { ICreateOrderUseCase } from "@application/ports/use-cases/create-order.interface";
-import { Order, OrderDTO } from "@domain/entities/order.entity";
-import { IOrderRepository } from "@domain/repositories/order.repository"
+import {
+  OrderResponseDTO,
+} from "@application/dtos/order.dto";
+import { OrderMapper } from "@application/mappers/order.mapper";
+import type { IIdGenerator } from "@application/ports/services/id-generator.service";
+import { ICreateOrderUseCase, OrderCreateRequestDTO } from "@application/ports/use-cases/create-order.interface";
+import { TYPES } from "@config/di/types";
+import { Order } from "@domain/entities/order.entity";
+import type { IOrderRepository } from "@domain/repositories/order.repository";
+import { inject, injectable } from "inversify";
 
+@injectable()
 export class CreateOrderUseCase implements ICreateOrderUseCase {
   constructor(
-    private orderRepository: IOrderRepository,
-    private idGenerator: IIdGenerator
+    @inject(TYPES.OrderRepository) private orderRepository: IOrderRepository,
+    @inject(TYPES.UIDService) private idGenerator: IIdGenerator
   ) {}
-  async execute(dto: CreateOrderDto): Promise<OrderDTO> {
+  async execute(dto: OrderCreateRequestDTO): Promise<OrderResponseDTO> {
     const id = this.idGenerator.generate();
     const order = Order.create({
       id,
       userId: dto.userId,
       item: dto.item,
       quantity: dto.quantity,
-      amount: dto.amount,
+      price: dto.price,
     });
 
-    await this.orderRepository.save(order);
+    const createdOrder = await this.orderRepository.save(order);
 
-    return order.toPrimitives();
+    return OrderMapper.toDTO(createdOrder);
   }
 }

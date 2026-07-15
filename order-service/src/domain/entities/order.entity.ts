@@ -1,3 +1,4 @@
+import { OrderStateTransitionException } from "@domain/exceptions/OrderStateTransitionException";
 import { OrderStatus } from "@domain/value-objects/order-status";
 
 export class Order {
@@ -6,7 +7,7 @@ export class Order {
     private _userId: string,
     private _item: string,
     private _quantity: number,
-    private _amount: number,
+    private _price: number,
     private _status: OrderStatus,
     private _created_at: Date
   ) {}
@@ -27,8 +28,8 @@ export class Order {
     return this._quantity;
   }
 
-  get amount(): number {
-    return this._amount;
+  get price(): number {
+    return this._price;
   }
 
   get status(): OrderStatus {
@@ -44,30 +45,38 @@ export class Order {
     userId: string;
     item: string;
     quantity: number;
-    amount: number;
+    price: number;
   }) {
     return new Order(
       data.id,
       data.userId,
       data.item,
       data.quantity,
-      data.amount,
+      data.price,
       OrderStatus.PENDING,
       new Date()
     );
   }
 
-  toPrimitives() {
-    return {
-      id: this._id,
-      userId: this._userId,
-      item: this._item,
-      quantity: this._quantity,
-      amount: this._amount,
-      status: this._status,
-      created_at: this._created_at,
+  private static readonly validTransitions: Record<OrderStatus, OrderStatus[]> =
+    {
+      [OrderStatus.PENDING]: [OrderStatus.PROCESSING],
+      [OrderStatus.PROCESSING]: [OrderStatus.SHIPPED],
+      [OrderStatus.SHIPPED]: [OrderStatus.DELIVERED],
+      [OrderStatus.DELIVERED]: [],
     };
+
+  updateStatus(newStatus: OrderStatus) {
+    if (this.status === newStatus) return;
+
+    const allowed = Order.validTransitions[this.status];
+
+    if (!allowed?.includes(newStatus)) {
+      throw new OrderStateTransitionException(
+        `Invalid status transition from ${this.status} to ${newStatus}`
+      );
+    }
+
+    this._status = newStatus;
   }
 }
-
-export type OrderDTO = ReturnType<typeof Order.prototype.toPrimitives>;

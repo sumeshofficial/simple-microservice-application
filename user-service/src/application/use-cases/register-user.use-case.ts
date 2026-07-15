@@ -38,6 +38,7 @@ export class RegisterUserUseCase implements IRegisterUserUseCase {
       name: dto.name,
       email: dto.email,
       passwordHash,
+      ...(dto.role && { role: dto.role }),
     });
 
     await this.userRepository.save(user);

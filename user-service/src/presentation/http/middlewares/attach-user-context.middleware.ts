@@ -5,7 +5,7 @@ import { injectable } from "inversify";
 export class AttachUserContextMiddleware {
   handle = (req: Request, _res: Response, next: NextFunction) => {
     try {
-      const userId = req.headers["x-jwt-userid"] as string;
+      const userId = req.headers["x-jwt-user-id"] as string;
       const role = req.headers["x-jwt-role"] as string | undefined;
 
       if (!userId) {

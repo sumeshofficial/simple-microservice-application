@@ -16,6 +16,7 @@
     "module": "esnext",
     "moduleResolution": "bundler",
     "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
     "noImplicitReturns": true,
@@ -25,5 +26,4 @@
     "skipLibCheck": true
   },
   "include": ["src"],
-  "exclude": ["node_modules", "dist"]
 }

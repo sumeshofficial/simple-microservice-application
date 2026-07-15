@@ -7,14 +7,14 @@ services:
       - "3001:3001"
       - "50051:50051"
 
-    environment: 
+    environment:
       - PORT=3001
       - MONGODB_URL=mongodb://mongodb:27017/user_db
       - JWT_SECRET=jwt-sceret-key
       - JWT_EXPIRES_IN=1d
       - GRPC_PORT=50051
 
-    depends_on: 
+    depends_on:
       - mongodb
 
     networks:
@@ -27,7 +27,40 @@ services:
     restart: always
 
     volumes:
-      - mongo-data:/data/db
+      - mongo_data:/data/db
+
+    networks:
+      - app-network
+
+  postgres:
+    image: postgres:17
+
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: order_db
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    networks:
+      - app-network
+
+  order-service:
+    build: ./order-service
+    container_name: order-service
+
+    ports:
+      - "3002:3002"
+
+    environment:
+      - DATABASE_URL=postgresql://user:password@postgres:5432/order_db
+      - USER_SERVICE_URL=user-service:50051
+      - PORT=3002
+
+    depends_on:
+      - postgres
+      - user-service
 
     networks:
       - app-network
@@ -37,4 +70,5 @@ networks:
     driver: bridge
 
 volumes:
-  mongo-data:
+  mongo_data:
+  postgres_data:

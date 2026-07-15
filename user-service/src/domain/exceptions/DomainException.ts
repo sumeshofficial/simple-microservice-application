@@ -17,25 +17,33 @@ export class DomainException extends Error {
 }
 
 export class UserAlreadyExistsEception extends DomainException {
-    constructor(email: string) {
-        super(`user with email ${email} already exists`, DomainErrorStatusCodes.USER_ALREADY_EXISTS, 409),
-        Object.setPrototypeOf(this, UserAlreadyExistsEception.prototype);
-        this.name = 'UserAlreadyExistsException';
-    }
+  constructor(email: string) {
+    (super(
+      `user with email ${email} already exists`,
+      DomainErrorStatusCodes.USER_ALREADY_EXISTS,
+      409
+    ),
+      Object.setPrototypeOf(this, UserAlreadyExistsEception.prototype));
+    this.name = "UserAlreadyExistsException";
+  }
 }
 
 export class UserNotFoundException extends DomainException {
-    constructor() {
-        super('User does not exist.', DomainErrorStatusCodes.USER_NOT_FOUND, 404),
-        Object.setPrototypeOf(this, UserNotFoundException.prototype);
-        this.name = 'UserNotFoundException';
-    }
+  constructor() {
+    (super("User does not exist.", DomainErrorStatusCodes.USER_NOT_FOUND, 404),
+      Object.setPrototypeOf(this, UserNotFoundException.prototype));
+    this.name = "UserNotFoundException";
+  }
 }
 
 export class InvalidCredentialsException extends DomainException {
-	constructor() {
-		super('Invalid credentials provided', DomainErrorStatusCodes.INVALID_CREDENTIALS, 401);
-		Object.setPrototypeOf(this, InvalidCredentialsException.prototype);
-		this.name = 'InvalidCredentialsException';
-	}
+  constructor() {
+    super(
+      "Invalid credentials provided",
+      DomainErrorStatusCodes.INVALID_CREDENTIALS,
+      401
+    );
+    Object.setPrototypeOf(this, InvalidCredentialsException.prototype);
+    this.name = "InvalidCredentialsException";
+  }
 }

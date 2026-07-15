@@ -34,24 +34,14 @@ export class User {
     name: string;
     email: string;
     passwordHash: string;
+    role?: Role
   }) {
     return new User(
       data.id,
       data.name,
       data.email,
       data.passwordHash,
-      Role.USER
+      data.role ?? Role.USER
     );
   }
-
-  toPrimitives() {
-    return {
-      id: this._id,
-      name: this._name,
-      email: this._email,
-      role: this._role
-    };
-  }
 }
-
-export type UserDTO = ReturnType<typeof User.prototype.toPrimitives>;
