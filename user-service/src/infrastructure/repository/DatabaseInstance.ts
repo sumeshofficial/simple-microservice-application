@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { env } from "../../config/env.config";
+import { logger } from "@shared/logger/logger";
 
 export class MongoDatabase {
   private static instance: MongoDatabase;
@@ -16,16 +17,18 @@ export class MongoDatabase {
   public async connect(): Promise<void> {
     try {
       await mongoose.connect(env.MONGODB_URL);
-      console.log("Db connected successfully")
+      logger.info("MongoDB connected successfully");
     } catch (error) {
+      logger.error(error, "MongoDB connection error:");
       throw new Error("Cannot connect to MongoDB");
     }
   }
   public async disconnect(): Promise<void> {
     try {
       await mongoose.disconnect();
+      logger.info("MongoDB disconnected successfully");
     } catch (error) {
-      console.log("Error disconnecting from MongoDB:");
+      logger.error(error, "MongoDB disconnection error:");
     }
   }
 }

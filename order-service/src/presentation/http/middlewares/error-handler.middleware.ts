@@ -15,7 +15,6 @@ export class ErrorHandlerMiddleware {
     res: Response,
     _next: NextFunction
   ) {
-    console.log(error.message);
 
     if (error instanceof AppError) {
       if (error instanceof CustomZodValidationError) {

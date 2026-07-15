@@ -7,22 +7,29 @@ import "reflect-metadata";
 import express from "express";
 import { container } from "@config/di/container";
 import { TYPES } from "@config/di/types";
-import { ROUTES } from "@presentation/http/constants/routes";
 import {
   server as grpcServer,
   startGrpcServer,
 } from "@presentation/grpc/user.grpc.server";
 import { seedAdmin } from "@infrastructure/repository/seed";
+import { httpLogger } from "@shared/logger/http.logger";
+import { tracingMiddleware } from "@presentation/http/middlewares/tracing.middleware";
+import helmet from "helmet";
+import { logger } from "@shared/logger/logger";
 
 const app = express();
+
+app.use(helmet());
+app.use(tracingMiddleware);
+app.use(httpLogger);
 
 app.use(express.json());
 
 const authRoutes = container.get<AuthRouter>(TYPES.AuthRoutes);
 const userRoutes = container.get<UserRouter>(TYPES.UserRoutes);
 
-app.use(ROUTES.AUTH, authRoutes.router);
-app.use(ROUTES.USERS, userRoutes.router);
+app.use(authRoutes.router);
+app.use(userRoutes.router);
 
 app.use(ErrorHandlerMiddleware.handle);
 
@@ -35,15 +42,21 @@ const bootstrap = async () => {
   await startGrpcServer();
 
   const server = app.listen(PORT, () => {
-    console.log(`Server listening on port ${env.PORT}`);
+    logger.info(`User service running on port: ${PORT}`);
   });
 
   const shutdown = async () => {
     grpcServer.tryShutdown((err) => {
-      console.log(err);
+      if (err) {
+        logger.error(err, "Error shutting down gRPC server");
+      } else {
+        logger.info("gRPC server closed");
+      }
     });
     server.close(async () => {
+      logger.info("HTTP server closed.");
       await mongo.disconnect();
+      logger.info("Graceful shutdown complete.");
       process.exit(0);
     });
   };
@@ -53,6 +66,6 @@ const bootstrap = async () => {
 };
 
 bootstrap().catch((error) => {
-  console.error("Failed to bootstrap application", error);
+  logger.error(error, "Failed to start server:");
   process.exit(1);
 });

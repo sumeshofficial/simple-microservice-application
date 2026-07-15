@@ -21,7 +21,6 @@ export class UpdateOrderStatusUseCase implements IUpdateOrderStatusUseCase {
 
   async execute(dto: UpdateOrderStatusRequest): Promise<OrderResponseDTO> {
     const role = await this.userServiceClient.getUserRole(dto.adminId);
-console.log(role)
     if (role !== "ADMIN") {
       throw new UnauthorizedException(
         "Only administrators can update order status"

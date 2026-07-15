@@ -1,6 +1,6 @@
 FROM node:22-alpine AS builder
 
-RUN apk add --no-cache libc6-compat openssl
+RUN apk add --no-cache openssl
 
 WORKDIR /app
 
@@ -8,15 +8,13 @@ COPY package*.json ./
 
 RUN npm ci
 
-COPY proto ./proto
-
 COPY . .
 
 RUN npm run build
 
 FROM node:22-alpine
 
-RUN apk add --no-cache libc6-compat openssl
+RUN apk add --no-cache openssl
 
 WORKDIR /app
 
@@ -24,13 +22,13 @@ COPY package*.json ./
 
 RUN npm ci --omit=dev
 
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/proto ./proto
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nodejs
 
-RUN addgroup -S usergroup && adduser -S useruser -G usergroup
-USER useruser
+COPY --from=builder /app/dist ./dist
+
+USER nodejs
 
 EXPOSE 3001
-EXPOSE 50051
 
 CMD ["node", "dist/main.js"]

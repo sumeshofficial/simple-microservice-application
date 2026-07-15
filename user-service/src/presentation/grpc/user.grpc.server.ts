@@ -10,6 +10,9 @@ import type { UserGrpcController } from "./controllers/user.grpc.conrollers";
 import { TYPES } from "@config/di/types";
 import { ProtoGrpcType } from "./generated/user";
 import { env } from "@config/env.config";
+import { randomUUID } from "node:crypto";
+import { tracingStorage } from "@shared/tracing/tracing-context";
+import { logger } from "@shared/logger/logger";
 
 const protoPath = path.resolve(process.cwd(), "proto/user.proto");
 
@@ -22,7 +25,13 @@ const controller = container.get<UserGrpcController>(TYPES.UserGrpcController);
 export const server = new Server();
 
 server.addService(proto.user.UserService.service, {
-  GetUser: controller.GetUser,
+  GetUser: (call: any, callback: any) => {
+    const correlationId =
+      call.metadata.get("x-correlation-id")[0] || randomUUID();
+    tracingStorage.run({ correlationId }, () => {
+      controller.GetUser(call, callback);
+    });
+  },
 });
 
 export const startGrpcServer = async () => {
@@ -30,16 +39,17 @@ export const startGrpcServer = async () => {
 
   return new Promise<void>((resolve, reject) => {
     const bindAddr = PORT.includes(":") ? PORT : `0.0.0.0:${PORT}`;
-    console.log(`[DEBUG] GPRC_PORT value: "${PORT}"`);
-    console.log(`[DEBUG] Final gRPC Bind Address: "${bindAddr}"`);
+    logger.info(`[DEBUG] GPRC_PORT value: "${PORT}"`);
+    logger.info(`[DEBUG] Final gRPC Bind Address: "${bindAddr}"`);
     server.bindAsync(
       bindAddr,
       ServerCredentials.createInsecure(),
-      (err) => {
+      (err, port) => {
         if (err) {
+          logger.error(err, "Failed to bind gRPC server");
           return reject(err);
         }
-
+        logger.info(`gRPC server bound on ${port}`);
         resolve();
       }
     );

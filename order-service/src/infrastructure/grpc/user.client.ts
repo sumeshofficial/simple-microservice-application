@@ -1,4 +1,4 @@
-import { credentials, loadPackageDefinition } from "@grpc/grpc-js";
+import { credentials, loadPackageDefinition, Metadata } from "@grpc/grpc-js";
 import { loadSync } from "@grpc/proto-loader";
 import path from "node:path";
 import { ProtoGrpcType } from "./generated/user";
@@ -6,8 +6,7 @@ import { injectable } from "inversify";
 import { IUserServiceClient } from "@application/ports/user-client.interface";
 import { UserServiceClient } from "./generated/user/UserService";
 import { env } from "@config/env.config";
-import { container } from "@config/di/container";
-import { TYPES } from "@config/di/types";
+import { getCorrelationId } from "@shared/tracing/tracing-context";
 
 const protoPath = path.resolve(process.cwd(), "proto/user.proto");
 
@@ -26,9 +25,14 @@ export class UserGrpcClient implements IUserServiceClient {
     );
   }
   getUserRole(userId: string): Promise<string | null> {
+    const metadata = new Metadata();
+		const correlationId = getCorrelationId();
+		if (correlationId) {
+			metadata.add("x-correlation-id", correlationId);
+		}
+
     return new Promise((resolve) => {
-      this.client.GetUser({ userId }, (err, response) => {
-        console.log(response)
+      this.client.GetUser({ userId }, metadata, (err, response) => {
         if (err) {
           return resolve(null);
         }

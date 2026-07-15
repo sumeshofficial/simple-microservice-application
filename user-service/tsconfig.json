@@ -8,7 +8,8 @@
       "@infrastructure/*": ["./src/infrastructure/*"],
       "@presentation/*": ["./src/presentation/*"],
       "@config/*": ["./src/config/*"],
-      "@interfaces/*": ["./src/interfaces/*"]
+      "@interfaces/*": ["./src/interfaces/*"],
+      "@shared/*": ["./src/shared/*"]
     },
     "lib": ["esnext"],
     "target": "ES2022",
