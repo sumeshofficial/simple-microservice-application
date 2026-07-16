@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: order-deployment
+
+spec:
+  replicas: 2
+
+  strategy:
+    type: RollingUpdate
+
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+
+  selector:
+    matchLabels:
+      app: order-deployment
+
+  template:
+    metadata:
+      labels:
+        app: order-deployment
+
+    spec:
+      containers:
+        - name: user-service
+          image: sumesh18/ms-demo-order-service
+
+          ports:
+            - containerPort: 3002
+
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: order-secret
+                  key: DATABASE_URL
+
+            - name: PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: order-configmap
+                  key: PORT
+
+            - name: USER_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: order-configmap
+                  key: USER_SERVICE_URL
