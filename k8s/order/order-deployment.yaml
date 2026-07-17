@@ -25,7 +25,7 @@ spec:
 
     spec:
       containers:
-        - name: user-service
+        - name: order-service
           image: sumesh18/ms-demo-order-service
 
           ports:
