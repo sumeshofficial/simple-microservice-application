@@ -12,8 +12,8 @@ spec:
   ingressClassName: nginx
 
   rules:
-    - host: micro.local
-      http:
+    # for local - host:micro.local
+    - http:
         paths:
           - path: /
             pathType: Prefix

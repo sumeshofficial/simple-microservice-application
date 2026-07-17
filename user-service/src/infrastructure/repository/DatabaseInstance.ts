@@ -16,7 +16,7 @@ export class MongoDatabase {
 
   public async connect(): Promise<void> {
     try {
-      await mongoose.connect(env.MONGODB_URL);
+      await mongoose.connect(env.MONGODB_URI);
       logger.info("MongoDB connected successfully");
     } catch (error) {
       logger.error(error, "MongoDB connection error:");

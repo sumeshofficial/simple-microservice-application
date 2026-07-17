@@ -3,7 +3,7 @@ import { z } from "zod";
 
 const envSchema = z.object({
   PORT: z.coerce.number().int().min(1).max(65535).default(3001),
-  MONGODB_URL: z.string().min(1, "MONGODB_URL is required"),
+  MONGODB_URI: z.string().min(1, "MONGODB_URI is required"),
   JWT_SECRET: z.string().min(1, "JWT_SECRET is required"),
   JWT_EXPIRES_IN: z.string().default("1d"),
   GRPC_PORT: z.string(),

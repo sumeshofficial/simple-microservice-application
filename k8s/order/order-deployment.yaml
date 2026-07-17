@@ -35,7 +35,7 @@ spec:
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
-                  name: order-secret
+                  name: ms-demo-secrets
                   key: DATABASE_URL
 
             - name: PORT
